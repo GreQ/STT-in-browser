@@ -1,0 +1,1 @@
+Add Voice Activity Detection (VAD) in app.py on the client side in order to determine if a sentance has ended, add add dot if so and send the comp.
