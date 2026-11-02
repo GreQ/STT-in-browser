@@ -7,6 +7,46 @@ const statusBox = document.querySelector("#status");
 const responseBox = document.querySelector("#response");
 let recognition;
 
+const sst = {
+  speak_cs: async (text) => {
+    /*
+    const tts = new gTTS(text);
+    const audioData = await tts.getAudio();
+    const audioBlob = new Blob([audioData], { type: "audio/mpeg" });
+    const audioUrl = URL.createObjectURL(audioBlob);
+    const audio = new Audio(audioUrl);
+    */
+  },
+  speak_ss: async (text) => {
+
+    const formData = new FormData();
+    formData.append('text', text);
+
+    const response = await fetch('/api/text-to-speech', {
+        method: 'POST',
+        body: formData
+    });
+
+    if (response.ok) {
+        const blob = await response.blob();
+        const audioUrl = URL.createObjectURL(blob);
+        const audio = document.getElementById('audio');
+        audio.src = audioUrl;
+
+        // Start animation and play audio
+        // bubbleAnimation.classList.add('active');
+        audio.play();
+
+        // Stop animation when the audio ends
+        audio.onended = () => {
+            bubbleAnimation.classList.remove('active');
+        };
+    } else {
+        alert('Something went wrong. Please try again.');
+    }
+  }
+}
+
 if (!SpeechRecognition) {
   startButton.disabled = true;
   statusBox.textContent = "Speech recognition is not supported in this browser. Try a browser with Web Speech API support.";
@@ -63,6 +103,8 @@ sendButton.addEventListener("click", async () => {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
+    //debugger;
+    await sst.speak_ss(data.response);
     responseBox.textContent = `Backend response:\n${JSON.stringify(data, null, 2)}`;
     statusBox.textContent = "Transcript sent.";
   } catch (error) {
